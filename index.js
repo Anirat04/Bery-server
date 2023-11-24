@@ -11,7 +11,7 @@ app.use(express.json())
 
 // import database connection
 
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.hrhwfvt.mongodb.net/?retryWrites=true&w=majority`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
@@ -37,6 +37,15 @@ async function run() {
         const result = await propertyCollection.find().toArray()
         res.send(result)
     })
+    // Get one property by id
+    app.get('/property/:id', async (req, res) => {
+        const propertyID = req.params.id
+        const query = {_id: new ObjectId(propertyID)}
+        const result = await propertyCollection.findOne(query)
+        res.send(result)
+    })
+
+
     // All reviews data API calls
     app.get('/reviews', async(req, res) => {
         const result = await reviewsCollection.find().toArray()
