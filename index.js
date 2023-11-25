@@ -30,6 +30,7 @@ async function run() {
 
     const propertyCollection = client.db('Bery_DB').collection('property')
     const reviewsCollection = client.db('Bery_DB').collection('review')
+    const wishlistCollection = client.db('Bery_DB').collection('wishlist')
 
 
     // All properties data API calls
@@ -50,6 +51,21 @@ async function run() {
     app.get('/reviews', async(req, res) => {
         const result = await reviewsCollection.find().toArray()
         res.send(result)
+    })
+
+    // get properties of wishlist firn wishlist API
+    app.get('/wishlist', async(req, res) => {
+        const email = req.query.email
+        const query = {wishUserEmail: email} 
+        const result = await wishlistCollection.find(query).toArray();
+        res.send(result)
+    })
+
+    // add properties to wishlist
+    app.post('/wishlist', async(req, res) => {
+      const wishItem = req.body
+      const result = await wishlistCollection.insertOne(wishItem)
+      res.send(result)
     })
 
 
