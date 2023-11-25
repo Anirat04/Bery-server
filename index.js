@@ -31,6 +31,7 @@ async function run() {
     const propertyCollection = client.db('Bery_DB').collection('property')
     const reviewsCollection = client.db('Bery_DB').collection('review')
     const wishlistCollection = client.db('Bery_DB').collection('wishlist')
+    const propertyBoughtCollection = client.db('Bery_DB').collection('property_bought')
 
 
     // All properties data API calls
@@ -65,6 +66,13 @@ async function run() {
     app.post('/wishlist', async(req, res) => {
       const wishItem = req.body
       const result = await wishlistCollection.insertOne(wishItem)
+      res.send(result)
+    })
+
+    // add offered properties to property bought list
+    app.post('/property_bought', async(req, res) => {
+      const offeredProperty = req.body
+      const result = await propertyBoughtCollection.insertOne(offeredProperty)
       res.send(result)
     })
 
