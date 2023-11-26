@@ -35,6 +35,11 @@ async function run() {
     const propertyBoughtCollection = client.db('Bery_DB').collection('property_bought')
 
     // Users related API
+    app.get('/allUsers', async (req, res) => {
+      const result = await usersCollection.find().toArray()
+      res.send(result)
+    })
+
     app.get('/users', async (req, res) => {
       const userEmail = req.query.email
       const query = {email: userEmail}
@@ -42,7 +47,6 @@ async function run() {
       res.send(result)
     })
 
-    
     app.post('/users', async (req, res) => {
       const userInfo = req.body
       // inserrt email if user doesn't exist:
@@ -53,6 +57,18 @@ async function run() {
         return res.send({message: 'user already exists', insertedID: null})
       }
       const result = await usersCollection.insertOne(userInfo)
+      res.send(result)
+    })
+    // user admin APIS
+    app.patch('/users/admin/:id', async(req, res) => {
+      const id = req.params.id
+      const filter = {_id: new ObjectId(id)}
+      const updatedDoc = {
+        $set: {
+          role: 'admin'
+        }
+      }
+      const result = await usersCollection.updateOne(filter, updatedDoc)
       res.send(result)
     })
 
