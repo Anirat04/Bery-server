@@ -56,6 +56,11 @@ async function run() {
 
     // get properties of wishlist firn wishlist API
     app.get('/wishlist', async(req, res) => {
+        const result = await wishlistCollection.find().toArray();
+        res.send(result)
+    })
+    // get properties of wishlist firn wishlist API
+    app.get('/wishlist', async(req, res) => {
         const email = req.query.email
         const query = {wishUserEmail: email} 
         const result = await wishlistCollection.find(query).toArray();
@@ -68,6 +73,13 @@ async function run() {
       const result = await wishlistCollection.insertOne(wishItem)
       res.send(result)
     })
+    //delete property from wishlist
+    app.delete('/wishlist/:id', async(req, res) => {
+      const wishID = req.params.id
+      const query = {_id: new ObjectId(wishID)}
+      const result = await wishlistCollection.deleteOne(query)
+      res.send(result)
+    }) 
 
     // add offered properties to property bought list
     app.post('/property_bought', async(req, res) => {
