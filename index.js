@@ -36,53 +36,67 @@ async function run() {
 
     // All properties data API calls
     app.get('/property', async (req, res) => {
-        const result = await propertyCollection.find().toArray()
-        res.send(result)
+      const result = await propertyCollection.find().toArray()
+      res.send(result)
     })
     // Get one property by id
     app.get('/property/:id', async (req, res) => {
-        const propertyID = req.params.id
-        const query = {_id: new ObjectId(propertyID)}
-        const result = await propertyCollection.findOne(query)
-        res.send(result)
+      const propertyID = req.params.id
+      const query = { _id: new ObjectId(propertyID) }
+      const result = await propertyCollection.findOne(query)
+      res.send(result)
     })
 
 
     // All reviews data API calls
-    app.get('/reviews', async(req, res) => {
-        const result = await reviewsCollection.find().toArray()
-        res.send(result)
+    app.get('/reviews', async (req, res) => {
+      const result = await reviewsCollection.find().toArray()
+      res.send(result)
     })
 
     // get properties of wishlist firn wishlist API
-    app.get('/wishlist', async(req, res) => {
-        const result = await wishlistCollection.find().toArray();
-        res.send(result)
+    app.get('/allWishlist', async (req, res) => {
+      const result = await wishlistCollection.find().toArray();
+      res.send(result)
     })
-    // get properties of wishlist firn wishlist API
-    app.get('/wishlist', async(req, res) => {
-        const email = req.query.email
-        const query = {wishUserEmail: email} 
-        const result = await wishlistCollection.find(query).toArray();
-        res.send(result)
-    })
+    app.get('/wishlist', async (req, res) => {
+      const email = req.query.email;
+      const query = { wishUserEmail: email };
+      const result = await wishlistCollection.find(query).toArray();
+      res.send(result);
+    });
 
     // add properties to wishlist
-    app.post('/wishlist', async(req, res) => {
+    app.post('/wishlist', async (req, res) => {
       const wishItem = req.body
       const result = await wishlistCollection.insertOne(wishItem)
       res.send(result)
     })
     //delete property from wishlist
-    app.delete('/wishlist/:id', async(req, res) => {
+    app.delete('/wishlist/:id', async (req, res) => {
       const wishID = req.params.id
-      const query = {_id: new ObjectId(wishID)}
+      const query = { _id: new ObjectId(wishID) }
       const result = await wishlistCollection.deleteOne(query)
       res.send(result)
-    }) 
+    })
+
+
+    // get offered properties in property bought list API
+    app.get('/property_bought', async (req, res) => {
+      const result = await propertyBoughtCollection.find().toArray()
+      res.send(result)
+    })
+
+    // get offered properties in property bought list by USER email
+    app.get('/property_bought', async (req, res) => {
+      const email = req.query.email
+      const query = { BuyerEmail: email }
+      const result = await wishlistCollection.find(query).toArray();
+      res.send(result)
+    })
 
     // add offered properties to property bought list
-    app.post('/property_bought', async(req, res) => {
+    app.post('/property_bought', async (req, res) => {
       const offeredProperty = req.body
       const result = await propertyBoughtCollection.insertOne(offeredProperty)
       res.send(result)
@@ -101,9 +115,9 @@ run().catch(console.dir);
 
 
 app.get('/', (req, res) => {
-    res.send('bery server is running')
+  res.send('bery server is running')
 })
 
 app.listen(port, () => {
-    console.log('bery server is listening on port', port)
+  console.log('bery server is listening on port', port)
 })
