@@ -28,10 +28,33 @@ async function run() {
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
 
+    const usersCollection = client.db('Bery_DB').collection('users')
     const propertyCollection = client.db('Bery_DB').collection('property')
     const reviewsCollection = client.db('Bery_DB').collection('review')
     const wishlistCollection = client.db('Bery_DB').collection('wishlist')
     const propertyBoughtCollection = client.db('Bery_DB').collection('property_bought')
+
+    // Users related API
+    app.get('/users', async (req, res) => {
+      const userEmail = req.query.email
+      const query = {email: userEmail}
+      const result = await usersCollection.find(query).toArray()
+      res.send(result)
+    })
+
+    
+    app.post('/users', async (req, res) => {
+      const userInfo = req.body
+      // inserrt email if user doesn't exist:
+      // you can do this many ways (1. unique email, 2. Upsert 3.simple checking)
+      const query = {email: userInfo.email}
+      const existingUser = await usersCollection.findOne(query);
+      if(existingUser){
+        return res.send({message: 'user already exists', insertedID: null})
+      }
+      const result = await usersCollection.insertOne(userInfo)
+      res.send(result)
+    })
 
 
     // All properties data API calls
@@ -88,7 +111,7 @@ async function run() {
       const result = await propertyBoughtCollection.find().toArray()
       res.send(result)
     })
-    
+
     // get offered properties in property bought list by USER email
     app.get('/property_bought', async (req, res) => {
       const email = req.query.email
@@ -96,7 +119,7 @@ async function run() {
       const result = await propertyBoughtCollection.find(query).toArray();
       res.send(result)
     })
-    
+
     // add offered properties to property bought list
     app.post('/property_bought', async (req, res) => {
       const offeredProperty = req.body
@@ -104,8 +127,8 @@ async function run() {
       res.send(result)
     })
     // ---------------------------------- Property Bought API ends --------------------------------
-    
-    
+
+
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
