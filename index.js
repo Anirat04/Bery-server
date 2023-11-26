@@ -54,6 +54,8 @@ async function run() {
       res.send(result)
     })
 
+
+    // ----------------------- Wishlist API --------------------
     // get properties of wishlist firn wishlist API
     app.get('/allWishlist', async (req, res) => {
       const result = await wishlistCollection.find().toArray();
@@ -80,29 +82,30 @@ async function run() {
       res.send(result)
     })
 
-
+    // ---------------------------------- Property Bought API starts --------------------------------
     // get offered properties in property bought list API
-    app.get('/property_bought', async (req, res) => {
+    app.get('/allProperty_bought', async (req, res) => {
       const result = await propertyBoughtCollection.find().toArray()
       res.send(result)
     })
-
+    
     // get offered properties in property bought list by USER email
     app.get('/property_bought', async (req, res) => {
       const email = req.query.email
       const query = { BuyerEmail: email }
-      const result = await wishlistCollection.find(query).toArray();
+      const result = await propertyBoughtCollection.find(query).toArray();
       res.send(result)
     })
-
+    
     // add offered properties to property bought list
     app.post('/property_bought', async (req, res) => {
       const offeredProperty = req.body
       const result = await propertyBoughtCollection.insertOne(offeredProperty)
       res.send(result)
     })
-
-
+    // ---------------------------------- Property Bought API ends --------------------------------
+    
+    
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
