@@ -44,14 +44,14 @@ async function run() {
 
     // middlewares
     const verifyToken = (req, res, next) => {
-      console.log('inside verify token',req.headers.authorization)
-      if(!req.headers.authorization){
-        return res.status(401).send({ message: 'unauthorized access'})
+      console.log('inside verify token', req.headers.authorization)
+      if (!req.headers.authorization) {
+        return res.status(401).send({ message: 'unauthorized access' })
       }
-      const token =  req.headers.authorization.split(' ')[1]
+      const token = req.headers.authorization.split(' ')[1]
       jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
-        if(err){
-          return res.status(401).send({message: 'unauthorized  access'})
+        if (err) {
+          return res.status(401).send({ message: 'unauthorized  access' })
         }
         req.decoded = decoded;
         next()
@@ -61,11 +61,11 @@ async function run() {
     // use verify admin after verifyToken 
     const verifyAdmin = async (req, res, next) => {
       const email = req.decoded.email;
-      const query = {email: email};
+      const query = { email: email };
       const user = await usersCollection.findOne(query);
       const isAdmin = user?.role === 'admin';
-      if(!isAdmin){
-        return res.status(403).send({message: 'forbidden access'})
+      if (!isAdmin) {
+        return res.status(403).send({ message: 'forbidden access' })
       }
       next();
     }
@@ -94,34 +94,34 @@ async function run() {
     })
 
     // check if user is admin for dynamically set the the accessibility of dashboard navigation
-    app.get('/allUsers/admin/:email', verifyToken, async(req, res, next)  => {
+    app.get('/allUsers/admin/:email', verifyToken, async (req, res, next) => {
       const email = req.params.email
-      if(email !== req.decoded.email) {
-        return res.status(403).send({message: 'forbidden access'})
+      if (email !== req.decoded.email) {
+        return res.status(403).send({ message: 'forbidden access' })
       }
 
-      const query = {email: email};
-      const user = await  usersCollection.findOne(query);
+      const query = { email: email };
+      const user = await usersCollection.findOne(query);
       let admin = false
-      if(user){
+      if (user) {
         admin = user?.role === 'admin';
       }
-      res.send({admin})
+      res.send({ admin })
     })
     // check if user is agent for dynamically set the accessibility of dashboard navigation
-    app.get('/allUsers/agent/:email', verifyToken, async(req, res)  => {
+    app.get('/allUsers/agent/:email', verifyToken, async (req, res) => {
       const email = req.params.email
-      if(email !== req.decoded.email) {
-        return res.status(403).send({message: 'forbidden access'})
+      if (email !== req.decoded.email) {
+        return res.status(403).send({ message: 'forbidden access' })
       }
 
-      const query = {email: email};
-      const user = await  usersCollection.findOne(query);
+      const query = { email: email };
+      const user = await usersCollection.findOne(query);
       let agent = false
-      if(user){
+      if (user) {
         agent = user?.role === 'agent';
       }
-      res.send({agent})
+      res.send({ agent })
     })
 
 
@@ -181,6 +181,22 @@ async function run() {
       const result = await propertyCollection.find().toArray()
       res.send(result)
     })
+    // post on all properties from add property route of agents dashboard
+    app.post('/property', async (req, res) => {
+      const property = req.body;
+      const result = await propertyCollection.insertOne(property)
+      res.send(result)
+    })
+
+    // delete a property from all properties for agent dashboard my properties route
+    app.delete('/property/:id', async (req, res) => {
+      const propertyID = req.params.id
+      const query = { _id: new ObjectId(propertyID) }
+      const result = await propertyCollection.deleteOne(query)
+      res.send(result)
+    })
+
+
     // Get one property by id
     app.get('/property/:id', async (req, res) => {
       const propertyID = req.params.id
