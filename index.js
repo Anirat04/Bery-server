@@ -69,9 +69,16 @@ async function run() {
       }
       next();
     }
-
-
-
+    // const verifyAgent = async (req, res, next) => {
+    //   const email = req.decoded.email;
+    //   const query = {email: email};
+    //   const user = await usersCollection.findOne(query);
+    //   const isAgent = user?.role === 'agent';
+    //   if(!isAgent){
+    //     return res.status(403).send({message: 'forbidden access'})
+    //   }
+    //   next();
+    // }
 
     // Users related API
     app.get('/allUsers', verifyToken, verifyAdmin, async (req, res) => {
@@ -87,7 +94,7 @@ async function run() {
     })
 
     // check if user is admin for dynamically set the the accessibility of dashboard navigation
-    app.get('/allUsers/admin/:email', verifyToken, async(req, res)  => {
+    app.get('/allUsers/admin/:email', verifyToken, async(req, res, next)  => {
       const email = req.params.email
       if(email !== req.decoded.email) {
         return res.status(403).send({message: 'forbidden access'})
@@ -101,6 +108,28 @@ async function run() {
       }
       res.send({admin})
     })
+    // check if user is agent for dynamically set the accessibility of dashboard navigation
+    app.get('/allUsers/agent/:email', verifyToken, async(req, res)  => {
+      const email = req.params.email
+      if(email !== req.decoded.email) {
+        return res.status(403).send({message: 'forbidden access'})
+      }
+
+      const query = {email: email};
+      const user = await  usersCollection.findOne(query);
+      let agent = false
+      if(user){
+        agent = user?.role === 'agent';
+      }
+      res.send({agent})
+    })
+
+
+
+
+
+
+
 
     app.post('/users', async (req, res) => {
       const userInfo = req.body
