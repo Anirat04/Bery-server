@@ -80,7 +80,7 @@ async function run() {
     //   next();
     // }
 
-    // Users related API
+    // ------------------------------------------ Users related API Starts ----------------------------------------
     app.get('/allUsers', verifyToken, verifyAdmin, async (req, res) => {
       const result = await usersCollection.find().toArray()
       res.send(result)
@@ -123,13 +123,6 @@ async function run() {
       }
       res.send({ agent })
     })
-
-
-
-
-
-
-
 
     app.post('/users', async (req, res) => {
       const userInfo = req.body
@@ -174,8 +167,10 @@ async function run() {
       const result = await usersCollection.deleteOne(query)
       res.send(result)
     })
+    // ------------------------------------------ Users related API Ends ----------------------------------------
 
 
+    // ------------------------------------------ All properties related API starts ----------------------------------------
     // All properties data API calls
     app.get('/property', async (req, res) => {
       const result = await propertyCollection.find().toArray()
@@ -192,11 +187,6 @@ async function run() {
       const id = req.params.id
       const filter = { _id: new ObjectId(id) }
       const updateProperty = req.body;
-      // const updatedDoc = {
-      //   $set: {
-      //     role: 'admin'
-      //   }
-      // }
       const result = await propertyCollection.updateOne(filter, { $set: updateProperty })
       res.send(result)
     })
@@ -217,16 +207,21 @@ async function run() {
       const result = await propertyCollection.findOne(query)
       res.send(result)
     })
+    // ------------------------------------------ All properties related API Ends ----------------------------------------
 
 
+
+
+    // ------------------------------------------ All Reviews related API Starts ----------------------------------------
     // All reviews data API calls
     app.get('/reviews', async (req, res) => {
       const result = await reviewsCollection.find().toArray()
       res.send(result)
     })
+    // ------------------------------------------ All Reviews related API Ends ----------------------------------------
 
 
-    // ----------------------- Wishlist API --------------------
+    // ----------------------- Wishlist Related API Starts --------------------
     // get properties of wishlist firn wishlist API
     app.get('/allWishlist', async (req, res) => {
       const result = await wishlistCollection.find().toArray();
@@ -252,8 +247,12 @@ async function run() {
       const result = await wishlistCollection.deleteOne(query)
       res.send(result)
     })
+    // ----------------------- Wishlist Related API Ends --------------------
 
-    // ---------------------------------- Property Bought API starts --------------------------------
+
+
+
+    // ---------------------------------- Property Bought API starts (Offered API) --------------------------------
     // get offered properties in property bought list API
     app.get('/allProperty_bought', async (req, res) => {
       const result = await propertyBoughtCollection.find().toArray()
@@ -274,7 +273,40 @@ async function run() {
       const result = await propertyBoughtCollection.insertOne(offeredProperty)
       res.send(result)
     })
-    // ---------------------------------- Property Bought API ends --------------------------------
+    // ---------------------------------- Property Bought API Ends (Offered API) --------------------------------
+
+    // ---------- Get Requested Properties related API ===> Property Bought API Ends (Offered API) starts ---------------
+    app.get('/requestedProperties', async (req, res) => {
+      const email = req.query.email
+      const query = { Agent_email: email }
+      const result = await propertyBoughtCollection.find(query).toArray();
+      res.send(result)
+    })
+
+    // requested properties status control API
+    app.patch('/requestedProperties/accept/:id', async (req, res) => {
+      const id = req.params.id
+      const filter = { _id: new ObjectId(id) }
+      const updatedDoc = {
+        $set: {
+          status: 'accepted'
+        }
+      }
+      const result = await propertyBoughtCollection.updateOne(filter, updatedDoc)
+      res.send(result)
+    })
+    app.patch('/requestedProperties/reject/:id', async (req, res) => {
+      const id = req.params.id
+      const filter = { _id: new ObjectId(id) }
+      const updatedDoc = {
+        $set: {
+          status: 'reject'
+        }
+      }
+      const result = await propertyBoughtCollection.updateOne(filter, updatedDoc)
+      res.send(result)
+    })
+    // ---------- Get Requested Properties related API ===> Property Bought API Ends (Offered API) ends ---------------
 
 
     // Send a ping to confirm a successful connection
