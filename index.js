@@ -3,6 +3,7 @@ const app = express()
 const cors = require('cors');
 const jwt = require('jsonwebtoken')
 require('dotenv').config()
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY)
 const port = process.env.PORT || 5000
 
 
@@ -10,6 +11,7 @@ const port = process.env.PORT || 5000
 app.use(cors())
 app.use(express.json())
 
+console.log(process.env.STRIPE_SECRET_KEY)
 // import database connection
 
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
@@ -307,6 +309,34 @@ async function run() {
       res.send(result)
     })
     // ---------- Get Requested Properties related API ===> Property Bought API Ends (Offered API) ends ---------------
+
+    // Payment intent
+    app.post('/create-payment-intent', verifyToken, async (req, res) => {
+      try {
+        const { price } = req.body;
+        const amount = price * 100;
+
+        const paymentIntent = await stripe.paymentIntents.create({
+          currency: 'usd',
+          amount: amount,
+          payment_method_types: [
+            "card"
+          ]
+
+        })
+        res.send({
+          clientSecret: paymentIntent.client_secret,
+        });
+
+
+      } catch (error) {
+        res.send({
+          success: false,
+          error: error.message
+
+        })
+      }
+    })
 
 
     // Send a ping to confirm a successful connection
