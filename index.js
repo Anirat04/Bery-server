@@ -36,6 +36,7 @@ async function run() {
     const reviewsCollection = client.db('Bery_DB').collection('review')
     const wishlistCollection = client.db('Bery_DB').collection('wishlist')
     const propertyBoughtCollection = client.db('Bery_DB').collection('property_bought')
+    const paymentCollection = client.db('Bery_DB').collection('payments')
 
     // JWT related API
     app.post('/jwt', async (req, res) => {
@@ -302,7 +303,7 @@ async function run() {
       const filter = { _id: new ObjectId(id) }
       const updatedDoc = {
         $set: {
-          status: 'reject'
+          status: 'rejected'
         }
       }
       const result = await propertyBoughtCollection.updateOne(filter, updatedDoc)
@@ -336,6 +337,21 @@ async function run() {
 
         })
       }
+    })
+
+    app.post('/payments', async (req, res) => {
+      const payment = req.body;
+      const query = { _id: new ObjectId(payment.boughtID) }
+      const updateDoc = {
+        $set: {
+          status: payment.status,
+          transactionID: payment.transactionId
+        },
+      };
+      const paymentResult = await paymentCollection.insertOne(payment);
+      const statusResult = await propertyBoughtCollection.updateOne(query, updateDoc);
+      console.log('payment info', payment)
+      res.send({paymentResult, statusResult});
     })
 
 
