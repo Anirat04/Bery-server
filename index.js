@@ -399,6 +399,13 @@ async function run() {
       res.send({ paymentResult, statusResult });
     })
 
+    app.get('/payments', async (req, res) => {
+      const email = req.query.email;
+      const query = { Agent_email: email };
+      const result = await paymentCollection.find(query).toArray();
+      res.send(result);
+    });
+
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
