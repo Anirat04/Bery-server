@@ -210,6 +210,38 @@ async function run() {
       const result = await propertyCollection.findOne(query)
       res.send(result)
     })
+
+
+    // Verification_status========{Verified} properties status control API
+    app.patch('/property/verify/:id', async (req, res) => {
+      const id = req.params.id
+      const filter = { _id: new ObjectId(id) }
+      const updatedDoc = {
+        $set: {
+          verification_status: 'Verified'
+        }
+      }
+      const result = await propertyCollection.updateOne(filter, updatedDoc)
+      res.send(result)
+    })
+    // Verification_status========{Regected} properties status control API
+    app.patch('/property/reject/:id', async (req, res) => {
+      const id = req.params.id
+      const filter = { _id: new ObjectId(id) }
+      const updatedDoc = {
+        $set: {
+          verification_status: 'Rejected'
+        }
+      }
+      const result = await propertyCollection.updateOne(filter, updatedDoc)
+      res.send(result)
+    })
+
+
+
+
+
+
     // ------------------------------------------ All properties related API Ends ----------------------------------------
 
 
@@ -219,6 +251,19 @@ async function run() {
     // All reviews data API calls
     app.get('/reviews', async (req, res) => {
       const result = await reviewsCollection.find().toArray()
+      res.send(result)
+    })
+
+    app.post('/reviews', async (req, res) => {
+      const reviewItem = req.body
+      const result = await reviewsCollection.insertOne(reviewItem)
+      res.send(result)
+    })
+
+    app.delete('/reviews/:id', async (req, res) => {
+      const reviewID = req.params.id
+      const query = { _id: new ObjectId(reviewID) }
+      const result = await reviewsCollection.deleteOne(query)
       res.send(result)
     })
     // ------------------------------------------ All Reviews related API Ends ----------------------------------------
@@ -351,7 +396,7 @@ async function run() {
       const paymentResult = await paymentCollection.insertOne(payment);
       const statusResult = await propertyBoughtCollection.updateOne(query, updateDoc);
       console.log('payment info', payment)
-      res.send({paymentResult, statusResult});
+      res.send({ paymentResult, statusResult });
     })
 
 
